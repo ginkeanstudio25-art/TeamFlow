@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  agentRules: false,
-  distDir: ".teamflow-next"
+  agentRules: false
 };
 
 export default nextConfig;

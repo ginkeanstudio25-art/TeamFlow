@@ -4,7 +4,6 @@
 node_modules
 tsconfig.tsbuildinfo
 npm-debug.log*
-.teamflow-next/
 scripts/click-run-query.ps1
 scripts/click-run-rls.ps1
 scripts/fresh-paste-schema-altd.ps1
@@ -21,3 +20,4 @@ supabase/schema-ascii.sql
 TeamFlow.html
 _deploy_clean/
 scripts/check-login.mjs
+

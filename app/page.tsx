@@ -274,6 +274,9 @@ export default function Home() {
     }
 
     const savedTaskId = (result.data as Task).id;
+    if (!editingTask) {
+      await notifyLine({ kind: "task", taskId: savedTaskId });
+    }
     if (inlineRequest.recipient) {
       await createRequest({
         ...inlineRequest,
@@ -313,19 +316,41 @@ export default function Home() {
     setRequestModalOpen(true);
   }
 
+  async function notifyLine(body: { kind: "task"; taskId: string } | { kind: "request"; requestId: string }) {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) return;
+
+    await fetch("/api/line/notify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(body)
+    }).catch(() => undefined);
+  }
+
   async function createRequest(form: RequestForm) {
     if (!profile || !form.recipient) return;
     const taskTitle = tasks.find((task) => task.id === form.task_id)?.title;
-    const { error: requestError } = await supabase.from("requests").insert({
-      sender: profile.id,
-      recipient: form.recipient,
-      task_id: form.task_id || null,
-      type: form.type,
-      urgency: form.urgency,
-      message: form.message || form.title || "",
-      status: "รอผู้รับตอบ"
-    });
+    const { data: createdRequest, error: requestError } = await supabase
+      .from("requests")
+      .insert({
+        sender: profile.id,
+        recipient: form.recipient,
+        task_id: form.task_id || null,
+        type: form.type,
+        urgency: form.urgency,
+        message: form.message || form.title || "",
+        status: "รอผู้รับตอบ"
+      })
+      .select("id")
+      .single();
     if (requestError) setError(requestError.message);
+    if (!requestError && createdRequest?.id) {
+      await notifyLine({ kind: "request", requestId: createdRequest.id });
+    }
     if (!requestError && !form.title && taskTitle) setError("");
   }
 
@@ -840,6 +865,8 @@ function monthTitle(date: Date) {
 function isoDate(date: Date) {
   return date.toISOString().slice(0, 10);
 }
+
+
 
 
 

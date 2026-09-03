@@ -119,6 +119,23 @@ npm run dev
 
 หลัง deploy แล้วให้เข้า Supabase Dashboard > Authentication > URL Configuration และเพิ่ม Vercel URL ใน allowed redirect/site URL ตามโดเมนที่ใช้งานจริง
 
+## 9. แจ้งเตือน LINE
+
+ระบบรองรับ LINE Messaging API แบบส่งแจ้งเตือนเข้ากลุ่มทีม โดยข้อความใน LINE จะเป็นข้อความสั้น ๆ เช่น มีงานใหม่หรือมีคำขอใหม่ และให้เปิดเว็บ TeamFlow เพื่อดูรายละเอียดหลัง login
+
+1. ใน LINE Official Account Manager เปิด Messaging API
+2. ตั้ง Webhook URL เป็น `https://teamflow-workapp.vercel.app/api/line/webhook`
+3. เปิดใช้งาน Webhook
+4. ใน Vercel > Project > Environment Variables เพิ่มค่าเหล่านี้:
+   - `SUPABASE_SERVICE_ROLE_KEY` ใช้เฉพาะ server-side เท่านั้น ห้ามตั้งเป็น `NEXT_PUBLIC_`
+   - `LINE_CHANNEL_SECRET`
+   - `LINE_CHANNEL_ACCESS_TOKEN`
+5. Redeploy หนึ่งครั้ง
+6. เพิ่ม LINE Official Account เข้ากลุ่มทีม แล้วพิมพ์ `ไอดีกลุ่ม`
+7. นำค่าที่บอทตอบกลับมาใส่ใน Vercel เป็น `LINE_GROUP_ID`
+8. Redeploy อีกครั้ง
+
+หลังจากนั้น เมื่อมีการสร้างงานใหม่หรือส่งคำขอใหม่ ระบบจะส่งแจ้งเตือนเข้ากลุ่ม LINE
 ## คำสั่งตรวจคุณภาพ
 
 ```bash
@@ -137,3 +154,4 @@ npm run build
 - Member ลบงานไม่ได้และสร้างงานเองไม่ได้
 - Requests เห็นได้เฉพาะ manager หรือผู้ที่เป็น sender/recipient
 - Password ถูกจัดการโดย Supabase Auth เท่านั้น
+

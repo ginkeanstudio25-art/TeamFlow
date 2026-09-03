@@ -290,9 +290,13 @@ export default function Home() {
     if (!profile || !editingTask || !confirm(`ลบงาน "${editingTask.title}" ใช่ไหม?`)) return;
     setError("");
     const deletedTaskId = editingTask.id;
-    const { error: deleteError } = await supabase.from("tasks").delete().eq("id", deletedTaskId);
+    const { data: deletedRows, error: deleteError } = await supabase.from("tasks").delete().eq("id", deletedTaskId).select("id");
     if (deleteError) {
       setError(`ลบงานไม่สำเร็จ: ${deleteError.message}`);
+      return;
+    }
+    if (!deletedRows?.length) {
+      setError("ลบงานไม่สำเร็จ: ไม่พบงานนี้ หรือบัญชีนี้ไม่มีสิทธิ์ลบงาน");
       return;
     }
     setTasks((current) => current.filter((task) => task.id !== deletedTaskId));
@@ -836,5 +840,7 @@ function monthTitle(date: Date) {
 function isoDate(date: Date) {
   return date.toISOString().slice(0, 10);
 }
+
+
 
 

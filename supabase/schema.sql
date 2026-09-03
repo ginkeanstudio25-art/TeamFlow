@@ -241,10 +241,23 @@ on public.tasks for select
 to authenticated
 using (public.is_manager() or assigned_to = auth.uid());
 
-create policy "managers create tasks"
+create policy "managers and members create permitted tasks"
 on public.tasks for insert
 to authenticated
-with check (public.is_manager() and created_by = auth.uid());
+with check (
+  (
+    public.is_manager()
+    and created_by = auth.uid()
+  )
+  or (
+    not public.is_manager()
+    and created_by = auth.uid()
+    and assigned_to = auth.uid()
+    and due_date is null
+    and recurrence = 'once'
+    and recurrence_day is null
+  )
+);
 
 create policy "managers update all tasks; members update assigned tasks"
 on public.tasks for update
@@ -318,3 +331,4 @@ create policy "managers can delete requests"
 on public.requests for delete
 to authenticated
 using (public.is_manager());
+

@@ -242,19 +242,20 @@ export default function Home() {
     if (!profile || !taskForm.title.trim()) return;
     setError("");
 
+    const isNewMemberTask = !isManager && !editingTask;
     const done = taskForm.status === "เสร็จสิ้น" || taskForm.progress === 100;
     const payload = {
       title: taskForm.title.trim(),
       description: taskForm.description.trim() || null,
-      assigned_to: taskForm.assigned_to,
+      assigned_to: isNewMemberTask ? profile.id : taskForm.assigned_to,
       status: done ? "เสร็จสิ้น" : taskForm.status,
       progress: done ? 100 : taskForm.progress,
       current_step: taskForm.current_step.trim() || null,
       note: taskForm.note.trim() || null,
-      due_date: taskForm.due_date || null,
+      due_date: isNewMemberTask ? null : taskForm.due_date || null,
       completed_date: done ? taskForm.completed_date || isoDate(today) : taskForm.completed_date || null,
-      recurrence: taskForm.recurrence,
-      recurrence_day: taskForm.recurrence === "once" ? null : Number(taskForm.recurrence_day || 1),
+      recurrence: isNewMemberTask ? "once" : taskForm.recurrence,
+      recurrence_day: isNewMemberTask || taskForm.recurrence === "once" ? null : Number(taskForm.recurrence_day || 1),
       type: "task"
     };
     const writePayload = isManager ? { ...payload, created_at: `${taskForm.created_at || isoDate(today)}T00:00:00` } : payload;
@@ -396,7 +397,7 @@ export default function Home() {
             <h1>{pageMeta(page)[0]}</h1>
             <div className="sub">{pageMeta(page)[1]}</div>
           </div>
-          {isManager ? <button className="btn primary" onClick={openNewTask}>+ เพิ่มงาน</button> : null}
+          <button className="btn primary" onClick={openNewTask}>{isManager ? "+ เพิ่มงาน" : "+ เพิ่มงานของฉัน"}</button>
         </div>
         {error ? <div className="runtime-error">{error}</div> : null}
 
@@ -526,8 +527,8 @@ export default function Home() {
           <form className="modalbox" onSubmit={saveTask}>
             <h2>{editingTask ? "แก้ไข / อัปเดตความคืบหน้า" : "เพิ่มงานใหม่"}</h2>
             <div className="form">
-              <Field label="ชื่องาน" full><input disabled={!isManager} value={taskForm.title} onChange={(event) => setTaskForm({ ...taskForm, title: event.target.value })} required /></Field>
-              <Field label="รายละเอียด" full><textarea disabled={!isManager} rows={3} value={taskForm.description} onChange={(event) => setTaskForm({ ...taskForm, description: event.target.value })} /></Field>
+              <Field label="ชื่องาน" full><input disabled={!isManager && Boolean(editingTask)} value={taskForm.title} onChange={(event) => setTaskForm({ ...taskForm, title: event.target.value })} required /></Field>
+              <Field label="รายละเอียด" full><textarea disabled={!isManager && Boolean(editingTask)} rows={3} value={taskForm.description} onChange={(event) => setTaskForm({ ...taskForm, description: event.target.value })} /></Field>
               <Field label="คนทำ"><select disabled={!isManager} value={taskForm.assigned_to} onChange={(event) => setTaskForm({ ...taskForm, assigned_to: event.target.value })}>{profiles.map((p) => <option key={p.id} value={p.id}>{p.display_name}</option>)}</select></Field>
               <Field label="สถานะ"><select value={taskForm.status} onChange={(event) => setTaskForm(syncStatus(taskForm, event.target.value as TaskStatus))}>{STATUSES.map((s) => <option key={s}>{s}</option>)}</select></Field>
               <Field label="ความคืบหน้า"><select value={taskForm.progress} onChange={(event) => setTaskForm(syncProgress(taskForm, Number(event.target.value) as Progress))}>{PROGRESS_VALUES.map((p) => <option key={p} value={p}>{p}%</option>)}</select></Field>
@@ -830,3 +831,4 @@ function monthTitle(date: Date) {
 function isoDate(date: Date) {
   return date.toISOString().slice(0, 10);
 }
+

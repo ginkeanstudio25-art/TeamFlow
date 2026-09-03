@@ -288,11 +288,16 @@ export default function Home() {
 
   async function deleteTask() {
     if (!profile || !editingTask || !confirm(`ลบงาน "${editingTask.title}" ใช่ไหม?`)) return;
-    const { error: deleteError } = await supabase.from("tasks").delete().eq("id", editingTask.id);
+    setError("");
+    const deletedTaskId = editingTask.id;
+    const { error: deleteError } = await supabase.from("tasks").delete().eq("id", deletedTaskId);
     if (deleteError) {
-      setError(deleteError.message);
+      setError(`ลบงานไม่สำเร็จ: ${deleteError.message}`);
       return;
     }
+    setTasks((current) => current.filter((task) => task.id !== deletedTaskId));
+    setRequests((current) => current.map((request) => request.task_id === deletedTaskId ? { ...request, task_id: null, task: null } : request));
+    setEditingTask(null);
     setTaskModalOpen(false);
     await loadData(profile.id);
   }
@@ -831,4 +836,5 @@ function monthTitle(date: Date) {
 function isoDate(date: Date) {
   return date.toISOString().slice(0, 10);
 }
+
 

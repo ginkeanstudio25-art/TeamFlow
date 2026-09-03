@@ -253,9 +253,6 @@ with check (
     not public.is_manager()
     and created_by = auth.uid()
     and assigned_to = auth.uid()
-    and due_date is null
-    and recurrence = 'once'
-    and recurrence_day is null
   )
 );
 

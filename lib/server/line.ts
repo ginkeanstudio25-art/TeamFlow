@@ -33,7 +33,14 @@ export function verifyLineSignature(body: string, signature: string | null) {
     .update(body)
     .digest("base64");
 
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
+  const signatureBuffer = Buffer.from(signature);
+  const expectedBuffer = Buffer.from(expectedSignature);
+
+  if (signatureBuffer.length !== expectedBuffer.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(signatureBuffer, expectedBuffer);
 }
 
 export async function replyLineMessage(replyToken: string, messages: LineTextMessage[]) {
@@ -71,3 +78,5 @@ export async function pushLineMessage(to: string, messages: LineTextMessage[]) {
     throw new Error(`LINE push failed: ${response.status}`);
   }
 }
+
+

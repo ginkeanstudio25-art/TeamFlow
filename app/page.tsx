@@ -137,6 +137,7 @@ export default function Home() {
   }, [profile]);
 
   const isManager = profile?.role === "manager";
+  const canDeleteEditingTask = Boolean(editingTask && (isManager || editingTask.assigned_to === profile?.id));
   const currentName = profile?.display_name ?? "Jin";
   const scopedTasks = useMemo(() => {
     if (!profile) return [];
@@ -592,7 +593,7 @@ export default function Home() {
               </div>
             </div>
             <div className="modalactions">
-              {isManager && editingTask ? <button type="button" className="btn delete" onClick={deleteTask}>ลบงาน</button> : null}
+              {canDeleteEditingTask ? <button type="button" className="btn delete" onClick={deleteTask}>ลบงาน</button> : null}
               <button type="button" className="btn" onClick={() => setTaskModalOpen(false)}>ยกเลิก</button>
               <button className="btn primary" type="submit">บันทึกการเปลี่ยนแปลง</button>
             </div>
@@ -865,6 +866,8 @@ function monthTitle(date: Date) {
 function isoDate(date: Date) {
   return date.toISOString().slice(0, 10);
 }
+
+
 
 
 

@@ -265,10 +265,10 @@ to authenticated
 using (public.is_manager() or assigned_to = auth.uid())
 with check (public.is_manager() or assigned_to = auth.uid());
 
-create policy "managers delete tasks"
+create policy "managers and assigned members delete tasks"
 on public.tasks for delete
 to authenticated
-using (public.is_manager());
+using (public.is_manager() or assigned_to = auth.uid());
 
 create policy "requests visible to managers and participants"
 on public.requests for select
@@ -345,6 +345,9 @@ create policy "managers can delete requests"
 on public.requests for delete
 to authenticated
 using (public.is_manager());
+
+
+
 
 
 

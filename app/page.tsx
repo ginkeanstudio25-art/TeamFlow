@@ -255,7 +255,7 @@ export default function Home() {
       due_date: taskForm.due_date || null,
       completed_date: done ? taskForm.completed_date || isoDate(today) : taskForm.completed_date || null,
       recurrence: taskForm.recurrence,
-      recurrence_day: taskForm.recurrence === "once" ? null : Number(taskForm.recurrence_day || 1),
+      recurrence_day: taskForm.recurrence === "weekly" || taskForm.recurrence === "monthly" ? Number(taskForm.recurrence_day || 1) : null,
       type: "task"
     };
     const writePayload = isManager ? { ...payload, created_at: `${taskForm.created_at || isoDate(today)}T00:00:00` } : payload;
@@ -568,8 +568,8 @@ export default function Home() {
               <Field label="ความคืบหน้า"><select value={taskForm.progress} onChange={(event) => setTaskForm(syncProgress(taskForm, Number(event.target.value) as Progress))}>{PROGRESS_VALUES.map((p) => <option key={p} value={p}>{p}%</option>)}</select></Field>
               <Field label="ตอนนี้ทำถึงขั้นตอนไหนแล้ว" full><input value={taskForm.current_step} onChange={(event) => setTaskForm({ ...taskForm, current_step: event.target.value })} /></Field>
               <Field label="โน้ต / สิ่งที่ติดอยู่" full><textarea rows={2} value={taskForm.note} onChange={(event) => setTaskForm({ ...taskForm, note: event.target.value })} /></Field>
-              <Field label="ประเภทงาน"><select disabled={!isManager && Boolean(editingTask)} value={taskForm.recurrence} onChange={(event) => setTaskForm({ ...taskForm, recurrence: event.target.value as Recurrence })}><option value="once">งานครั้งเดียว</option><option value="weekly">↻ งานประจำรายสัปดาห์</option><option value="monthly">↻ งานประจำรายเดือน</option></select></Field>
-              {taskForm.recurrence !== "once" ? <Field label={taskForm.recurrence === "weekly" ? "ทำซ้ำทุก" : "วันที่ของทุกเดือน"}><select disabled={!isManager && Boolean(editingTask)} value={taskForm.recurrence_day} onChange={(event) => setTaskForm({ ...taskForm, recurrence_day: Number(event.target.value) })}>{routineOptions(taskForm.recurrence)}</select></Field> : null}
+              <Field label="ประเภทงาน"><select disabled={!isManager && Boolean(editingTask)} value={taskForm.recurrence} onChange={(event) => setTaskForm({ ...taskForm, recurrence: event.target.value as Recurrence })}><option value="once">งานครั้งเดียว</option><option value="daily">↻ งานประจำรายวัน</option><option value="weekly">↻ งานประจำรายสัปดาห์</option><option value="monthly">↻ งานประจำรายเดือน</option></select></Field>
+              {taskForm.recurrence === "weekly" || taskForm.recurrence === "monthly" ? <Field label={taskForm.recurrence === "weekly" ? "ทำซ้ำทุก" : "วันที่ของทุกเดือน"}><select disabled={!isManager && Boolean(editingTask)} value={taskForm.recurrence_day} onChange={(event) => setTaskForm({ ...taskForm, recurrence_day: Number(event.target.value) })}>{routineOptions(taskForm.recurrence)}</select></Field> : null}
               {taskForm.recurrence !== "once" ? <div className="field full routine-preview">↻ เมื่อรอบนี้เสร็จ ระบบจะสร้างงานรอบถัดไปและเก็บรอบเดิมไว้ในประวัติ</div> : null}
               {(isManager || !editingTask) ? <Field label="กำหนดส่ง"><input type="date" value={taskForm.due_date} onChange={(event) => setTaskForm({ ...taskForm, due_date: event.target.value })} /></Field> : null}
               <Field label="วันที่สร้าง"><input disabled={!isManager} type="date" value={taskForm.created_at} onChange={(event) => setTaskForm({ ...taskForm, created_at: event.target.value })} /></Field>
@@ -835,7 +835,7 @@ function statusClass(status: TaskStatus) {
 }
 
 function routineLabel(task: Task) {
-  return task.recurrence === "weekly" ? "↻ ทุกสัปดาห์" : task.recurrence === "monthly" ? "↻ ทุกเดือน" : "";
+  return task.recurrence === "daily" ? "↻ ทุกวัน" : task.recurrence === "weekly" ? "↻ ทุกสัปดาห์" : task.recurrence === "monthly" ? "↻ ทุกเดือน" : "";
 }
 
 function overdueDays(task: Task) {
@@ -865,6 +865,7 @@ function monthTitle(date: Date) {
 function isoDate(date: Date) {
   return date.toISOString().slice(0, 10);
 }
+
 
 
 

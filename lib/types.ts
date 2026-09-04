@@ -2,7 +2,7 @@ export type Role = "manager" | "member";
 export type PersonName = "Jin" | "Ja" | "Ice";
 export type TaskStatus = "ยังไม่เริ่ม" | "กำลังทำ" | "รอตรวจ" | "เสร็จสิ้น";
 export type Progress = 0 | 25 | 50 | 75 | 100;
-export type Recurrence = "once" | "weekly" | "monthly";
+export type Recurrence = "once" | "daily" | "weekly" | "monthly";
 export type RequestType =
   | "ติดปัญหา"
   | "ขออนุมัติ"
@@ -55,3 +55,4 @@ export type HelpRequest = {
   status: RequestStatus;
   created_at: string;
 };
+

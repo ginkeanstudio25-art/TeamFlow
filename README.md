@@ -8,7 +8,7 @@ TeamFlow คือเว็บแอปจัดการงานทีมภ�
 - ข้อมูล tasks และ requests เก็บใน Supabase tables ไม่ใช้ `localStorage` เป็นฐานข้อมูลหลัก
 - สิทธิ์ของ Jin, Ja และ Ice มาจาก table `profiles` หลัง login อัตโนมัติ
 - Supabase RLS ป้องกันไม่ให้ member query หรือแก้ข้อมูลที่ไม่มีสิทธิ์ แม้แก้ frontend เอง
-- Routine task สร้างรอบใหม่ด้วย database trigger เมื่อปิดงานเดิมเป็น `เสร็จสิ้น`
+- Routine task รองรับงานประจำรายวัน รายสัปดาห์ และรายเดือน โดย database trigger จะสร้างรอบใหม่เมื่อปิดงานเดิมเป็น `เสร็จสิ้น`
 
 ## Architecture
 
@@ -154,4 +154,5 @@ npm run build
 - Member ลบงานไม่ได้และสร้างงานเองไม่ได้
 - Requests เห็นได้เฉพาะ manager หรือผู้ที่เป็น sender/recipient
 - Password ถูกจัดการโดย Supabase Auth เท่านั้น
+
 

@@ -4,7 +4,7 @@ create type public.team_role as enum ('manager', 'member');
 create type public.person_name as enum ('Jin', 'Ja', 'Ice');
 create type public.task_status as enum ('ยังไม่เริ่ม', 'กำลังทำ', 'รอตรวจ', 'เสร็จสิ้น');
 create type public.task_progress as enum ('0', '25', '50', '75', '100');
-create type public.task_recurrence as enum ('once', 'weekly', 'monthly');
+create type public.task_recurrence as enum ('once', 'daily', 'weekly', 'monthly');
 create type public.request_type as enum (
   'ติดปัญหา',
   'ขออนุมัติ',
@@ -45,6 +45,7 @@ create table public.tasks (
   next_generated_task_id uuid references public.tasks(id) on delete set null,
   check (
     (recurrence = 'once' and recurrence_day is null)
+    or (recurrence = 'daily' and recurrence_day is null)
     or (recurrence = 'weekly' and recurrence_day between 1 and 7)
     or (recurrence = 'monthly' and recurrence_day between 1 and 31)
   )
@@ -180,7 +181,9 @@ begin
     return new;
   end if;
 
-  if new.recurrence = 'weekly' then
+  if new.recurrence = 'daily' then
+    next_due := new.due_date + interval '1 day';
+  elsif new.recurrence = 'weekly' then
     next_due := new.due_date + interval '7 days';
   elsif new.recurrence = 'monthly' then
     next_due := new.due_date + interval '1 month';
@@ -342,4 +345,6 @@ create policy "managers can delete requests"
 on public.requests for delete
 to authenticated
 using (public.is_manager());
+
+
 
